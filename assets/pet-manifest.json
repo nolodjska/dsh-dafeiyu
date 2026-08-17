@@ -6,7 +6,7 @@
   "maxFrameHeight": 260,
   "assetScale": 2,
   "clips": {
-    "idle": { "frames": ["idle_front/idle_front_238.png"], "frameMs": 180, "loop": true, "motion": "breathe" },
+    "idle": { "frames": ["working/stay.png"], "frameMs": 180, "loop": true, "motion": "breathe" },
     "blink": { "frames": ["idle_blink/idle_blink_238_00.png", "idle_blink/idle_blink_238_01.png", "idle_blink/idle_blink_238_02.png", "idle_blink/idle_blink_238_03.png", "idle_blink/idle_blink_238_04.png"], "frameMs": 112, "loop": false },
     "glance": { "frames": ["idle_glance/idle_glance_238_00.png", "idle_glance/idle_glance_238_01.png", "idle_glance/idle_glance_238_02.png", "idle_glance/idle_glance_238_03.png", "idle_glance/idle_glance_238_04.png", "idle_glance/idle_glance_238_05.png", "idle_glance/idle_glance_238_06.png"], "frameMs": 180, "loop": false },
     "thinking": { "frames": ["idle_think/idle_think_238.png"], "frameMs": 180, "loop": true, "motion": "think" },
@@ -34,7 +34,6 @@
     "searching_got_it": { "frames": ["searching/book_got_it.png"], "frameMs": 800, "loop": false, "motion": "breathe" },
     "searching_starry": { "frames": ["searching/starry_face.png"], "frameMs": 800, "loop": false, "motion": "breathe" },
     "searching_happy": { "frames": ["searching/book_happy.png"], "frameMs": 800, "loop": false, "motion": "breathe" },
-    "working_stay": { "frames": ["working/stay.png"], "frameMs": 800, "loop": true, "motion": "breathe" },
     "working_seat_in": { "frames": ["working/seat_01.png", "working/seat_02.png", "working/seat_03.png", "working/seat_04.png", "working/seat_05.png"], "frameMs": 220, "loop": false, "scale": 1.08 },
     "working_seat_out": { "frames": ["working/seat_05.png", "working/seat_04.png", "working/seat_03.png", "working/seat_02.png", "working/seat_01.png"], "frameMs": 220, "loop": false, "scale": 1.08 },
     "working_seat_05": { "frames": ["working/seat_05.png"], "frameMs": 800, "loop": true, "motion": "breathe", "scale": 1.08 },
@@ -56,7 +55,7 @@
     { "id": "leave", "label": "退场", "clips": ["leave"] },
     { "id": "idle", "label": "待机", "clips": ["idle", "blink", "glance", "sweep"], "folder": "." },
     { "id": "searching", "label": "搜索", "clips": ["searching_stay", "searching_ready", "searching_reading", "searching_sigh", "searching_throw", "searching_got_it", "searching_starry", "searching_happy"] },
-    { "id": "working", "label": "工作", "clips": ["working_stay", "working_seat_in", "working_seat_05", "working_confused", "working_delight", "working_idea", "working_sigh", "working_tired"] },
+    { "id": "working", "label": "工作", "clips": ["working_seat_in", "working_seat_05", "working_confused", "working_delight", "working_idea", "working_sigh", "working_tired"] },
     { "id": "dragging", "label": "拖拽", "clips": ["dragging", "dragging_hold", "dragging_release", "dragging_landed", "dragging_cry"] },
     { "id": "question", "label": "提问", "clips": ["question", "answer"], "folder": "." }
   ],

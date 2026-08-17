@@ -471,7 +471,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             return max(0, remaining)
 
         def _begin_working(self) -> None:
-            """Enter the working activity: seat entrance -> working_stay."""
+            """Enter the working activity: seat entrance -> working default seat_05."""
             self.working_active = True
             self.work_phase = "seat_in"
             self.model.play_overlay("working_seat_in")
@@ -594,7 +594,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 self.model.clear_overlay()
             # working 多阶段状态机
             if self.work_phase == "seat_in" and self.model.overlay_clip_name is None:
-                # 入场完成（自动回到 working_stay 底图）
+                # 入场完成（自动回到 working_seat_05 底图）
                 self.work_phase = "stay"
                 self.work_micro_next_ms = now_ms + random.randint(3500, 8000)
             elif (self.work_phase == "stay" and now_ms >= self.work_micro_next_ms
