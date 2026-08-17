@@ -31,6 +31,10 @@ STATES = {"IDLE", "THINKING", "WORKING", "WAITING", "SUCCESS", "ERROR", "DISCONN
 SEARCH_FRAME_MS = 800
 SEARCH_MICRO_CLIPS = ("searching_sigh", "searching_throw", "searching_got_it")
 SEARCH_DONE_PHASES = ("done_starry", "done_happy")
+# 工作会话中切到查资料的宽限期：查询持续超过此时长才真正拿起书（短暂查询保持坐姿）
+SEARCH_GRACE_MS = 1200
+# 少于此时长的查询不播星眼/开心收尾，直接回到工作姿态
+SEARCH_EXIT_MIN_MS = 2400
 WORKING_MICRO_CLIPS = ("working_confused", "working_delight", "working_idea", "working_sigh", "working_tired")
 # 回答表情展示时长（3 × 0.8s），之后回到底图
 QUESTION_ANSWER_MS = 2400
@@ -203,6 +207,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             self.searching_active = False
             self.search_phase_ms = 0
             self.search_micro_next_ms = 0
+            self.search_queued = False
+            self.search_queued_ms = 0
+            self.search_queued_book_base = ""
+            self.search_started_ms = 0
             self.work_phase = "none"
             self.working_active = False
             self.work_phase_ms = 0
@@ -345,14 +353,28 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                     activity = None if self.reduced_motion else message.get("activity")
                     is_searching = activity == "searching"
                     is_working = activity not in (None, "searching")
+                    previous_base = self.model.base_clip_name
                     self.model.apply_state(state, activity)
                     # 提问/回答表情展示期间不切换搜索/工作的进出场动画，避免盖掉 question/answer 表情
                     if self.question_phase == "none":
                         if is_searching:
                             if not self.searching_active and self.search_phase not in SEARCH_DONE_PHASES:
-                                self._begin_searching()
+                                if (self.working_active and self.work_phase in {"stay", "micro"}
+                                        and self.model.overlay_clip_name is None):
+                                    # 坐姿干活中的查资料：先等宽限期，短查询保持坐姿不切书
+                                    self.search_queued = True
+                                    self.search_queued_ms = self._now_ms()
+                                    self.search_queued_book_base = self.model.base_clip_name
+                                    self.model.base_clip_name = previous_base
+                                    self.model._activate(previous_base)
+                                else:
+                                    self._begin_searching()
                         elif self.searching_active:
                             self._finish_searching()
+                        elif self.search_queued:
+                            # 查询在宽限期内就结束了：取消切书，保持工作姿态
+                            self.search_queued = False
+                            self.search_queued_ms = 0
                         if state == "WORKING" and is_working:
                             if not self.working_active and self.work_phase != "seat_out":
                                 self._begin_working()
@@ -376,11 +398,19 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             self.search_phase = "ready"
             self.model.play_overlay("searching_ready")
             self.search_phase_ms = self._now_ms()
+            self.search_started_ms = self._now_ms()
             self._log_animation("begin_searching")
 
         def _finish_searching(self) -> None:
-            """Leave searching: starry_face -> book_happy."""
+            """Leave searching: starry_face -> book_happy；短查询直接回工作姿态。"""
             self.searching_active = False
+            if self._now_ms() - self.search_started_ms < SEARCH_EXIT_MIN_MS:
+                # 短暂查询不播星眼/开心收尾，避免工作与查资料频繁快切
+                self.search_phase = "none"
+                self.search_micro_next_ms = 0
+                self.model.clear_overlay()
+                self._log_animation("cancel_searching")
+                return
             self.search_phase = "done_starry"
             self.model.play_overlay("searching_starry")
             self.search_phase_ms = self._now_ms()
@@ -391,6 +421,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             self.searching_active = False
             self.search_phase = "none"
             self.search_micro_next_ms = 0
+            self.search_queued = False
+            self.search_queued_ms = 0
             self._log_animation("cancel_searching")
 
         def _debug_log_path(self) -> Path:
@@ -530,6 +562,11 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             elif self.drag_phase == "cry" and now_ms - self.cry_start_ms >= 1000:
                 self.model.clear_overlay()
                 self.drag_phase = "none"
+            # 查资料宽限：查询持续足够长才真正拿起书
+            if self.search_queued and now_ms - self.search_queued_ms >= SEARCH_GRACE_MS:
+                self.search_queued = False
+                self.model.base_clip_name = self.search_queued_book_base
+                self._begin_searching()
             # searching 多阶段状态机
             if self.search_phase == "ready" and now_ms - self.search_phase_ms >= SEARCH_FRAME_MS:
                 self.search_phase = "reading"
