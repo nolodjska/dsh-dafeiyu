@@ -628,7 +628,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
         def _apply_window_size(self) -> None:
             pet_width = round(int(manifest["maxFrameWidth"]) * self.scale)
             pet_height = round(int(manifest["maxFrameHeight"]) * self.scale)
-            self.setFixedSize(max(448, pet_width + 50), pet_height + 118)
+            # 顶部净空 150：容纳换行后的两行状态卡（约 127px）+ 呼吸浮动余量，
+            # 避免坐姿放大帧（1.08）在卡片增高后被遮挡钳制或底部裁切。
+            self.setFixedSize(max(448, pet_width + 50), pet_height + 150)
 
         def _restore_visible_position(self) -> None:
             saved_x = self.layout.get("x")
@@ -793,14 +795,47 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
             painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
             card = self._current_card()
-            bubble_height = 104 if card else 12
+            bubble_height = 12
             if card:
                 title, detail, card_state = card
                 card_x = 14
                 card_y = 7
                 card_width = self.width() - 28
-                card_height = 84
+                text_width = card_width - 102
+                text_x = card_x + 24
                 palette = self._palette()
+                # 标题支持换行：最多 3 行，超出截断加省略号；状态卡按需增高
+                title_font = QFont("Microsoft YaHei UI", 11)
+                title_font.setWeight(QFont.Weight.DemiBold)
+                detail_font = QFont("Microsoft YaHei UI", 9)
+                fm_title = QFontMetrics(title_font)
+                line_h = max(1, fm_title.height())
+                typed_title = title[:self.type_typed_title]
+                typed_detail = detail[:self.type_typed_detail]
+
+                def title_layout(text: str) -> tuple[str, int]:
+                    """返回 (可绘制标题, 占用行高)：自动换行，最多 3 行，超出截断。"""
+                    if not text:
+                        return "", line_h
+                    height = fm_title.boundingRect(
+                        0, 0, text_width, 0, Qt.TextFlag.TextWordWrap, text,
+                    ).height()
+                    lines = max(1, min(3, (height + line_h - 1) // line_h))
+                    budget = lines * line_h
+                    if height > budget:
+                        cut = text
+                        while cut and fm_title.boundingRect(
+                            0, 0, text_width, 0, Qt.TextFlag.TextWordWrap, cut + "…",
+                        ).height() > budget:
+                            cut = cut[:-1]
+                        text = cut + "…"
+                    return text, max(27, lines * line_h)
+
+                display_title, title_height = title_layout(typed_title)
+                detail_y = card_y + 15 + title_height + 4
+                card_height = detail_y + 24 - card_y + 17
+                bubble_height = card_y + card_height + 13
+
                 painter.setPen(Qt.PenStyle.NoPen)
                 painter.setBrush(palette["shadow1"])
                 painter.drawRoundedRect(card_x + 1, card_y + 13, card_width - 2, card_height, 30, 30)
@@ -814,29 +849,17 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 icon_center_y = card_y + card_height // 2
                 self._draw_status_icon(painter, card_state, icon_center_x, icon_center_y)
 
-                text_x = card_x + 24
-                text_width = card_width - 102
-                title_font = QFont("Microsoft YaHei UI", 11)
-                title_font.setWeight(QFont.Weight.DemiBold)
-                detail_font = QFont("Microsoft YaHei UI", 9)
-                typed_title = title[:self.type_typed_title]
-                typed_detail = detail[:self.type_typed_detail]
                 painter.save()
                 painter.setOpacity(self.type_alpha)
                 painter.setFont(title_font)
                 painter.setPen(palette["title"])
-                title_text = QFontMetrics(title_font).elidedText(
-                    typed_title,
-                    Qt.TextElideMode.ElideRight,
-                    text_width,
-                )
                 painter.drawText(
                     text_x,
                     card_y + 15,
                     text_width,
-                    27,
-                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
-                    title_text,
+                    title_height,
+                    Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextWordWrap,
+                    display_title,
                 )
                 painter.setFont(detail_font)
                 painter.setPen(palette["detail"])
@@ -847,7 +870,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 )
                 painter.drawText(
                     text_x,
-                    card_y + 43,
+                    detail_y,
                     text_width,
                     24,
                     Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
