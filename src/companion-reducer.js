@@ -133,6 +133,7 @@ export class CompanionReducer {
     switch (event.type) {
       case 'turn/start':
         record.turnActive = true
+        record.turnHasTools = false
         record.openTools.clear()
         record.task = undefined
         record.progress = undefined
@@ -146,7 +147,9 @@ export class CompanionReducer {
       case 'step/start':
       case 'assistant/chunk':
       case 'assistant/message':
-        if (!record.turnActive || record.openTools.size > 0) return []
+        // 本轮已进入工具阶段后保持工作状态：避免思考 ↔ 坐下/起身在连续工具
+        // 之间反复横跳；纯思考（未调用任何工具）的回合仍正常显示思考。
+        if (!record.turnActive || record.openTools.size > 0 || record.turnHasTools) return []
         this.#update(record, CompanionState.THINKING, {
           phase: event.type,
           stage: '分析阶段',
@@ -159,6 +162,7 @@ export class CompanionReducer {
         const name = String(event.data?.name ?? 'tool')
         const activity = toolActivity(name)
         record.openTools.set(callId, name)
+        record.turnHasTools = true
         this.#update(record, CompanionState.WORKING, {
           phase: 'tool-call',
           activity,
@@ -203,17 +207,23 @@ export class CompanionReducer {
     const callId = toolResultCallId(event)
     const finishedName = callId ? record.openTools.get(callId) : undefined
     if (callId) record.openTools.delete(callId)
-    const next = record.openTools.size > 0 ? CompanionState.WORKING : CompanionState.THINKING
+    // 本轮用过工具就保持 WORKING（最后一个工具结束后用 using-tool 占位），
+    // 只在回合真正结束（turn/end）时才起身/退出工作；避免连续工具之间
+    // 思考 ↔ 坐下/起身反复切换。
+    const next = record.openTools.size > 0 || record.turnHasTools
+      ? CompanionState.WORKING
+      : CompanionState.THINKING
+    const remainingName = record.openTools.size > 0
+      ? toolActivity(record.openTools.values().next().value)
+      : 'using-tool'
     const nextPayload = {
       phase: 'tool-result',
-      activity: next === CompanionState.WORKING
-        ? toolActivity(record.openTools.values().next().value)
-        : undefined,
-      stage: next === CompanionState.WORKING
-        ? activityStage(toolActivity(record.openTools.values().next().value))
+      activity: next === CompanionState.WORKING ? remainingName : undefined,
+      stage: next === CompanionState.WORKING && record.openTools.size > 0
+        ? activityStage(remainingName)
         : '整理阶段',
-      message: next === CompanionState.WORKING
-        ? activityCopy(toolActivity(record.openTools.values().next().value), event.seq)
+      message: next === CompanionState.WORKING && record.openTools.size > 0
+        ? activityCopy(remainingName, event.seq)
         : statusCopy('result', event.seq),
     }
     this.#update(record, next, nextPayload)
@@ -276,6 +286,7 @@ export class CompanionReducer {
 
   #turnEnd(record, event) {
     record.turnActive = false
+    record.turnHasTools = false
     record.openTools.clear()
     const kind = String(event.data?.reason?.kind ?? 'completed')
 
@@ -342,6 +353,7 @@ export class CompanionReducer {
       state: CompanionState.IDLE,
       payload: { phase: 'session-created', message: 'DSH 空闲中' },
       turnActive: false,
+      turnHasTools: false,
       openTools: new Map(),
       task: undefined,
       progress: undefined,

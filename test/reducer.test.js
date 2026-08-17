@@ -22,12 +22,14 @@ test('turn and tool events produce stable companion states', () => {
   assert.equal(working.state, CompanionState.WORKING)
   assert.equal(working.activity, 'commanding')
 
-  const thinking = reducer.handle(session, event('tool/result', {
+  const afterResult = reducer.handle(session, event('tool/result', {
     turn: 1,
     step: 1,
     message: { toolCallId: 'call-1' },
   }, 3))[0]
-  assert.equal(thinking.state, CompanionState.THINKING)
+  // 本轮用过工具后保持工作状态（避免思考 ↔ 坐下/起身横跳），回合结束才退出
+  assert.equal(afterResult.state, CompanionState.WORKING)
+  assert.equal(afterResult.activity, 'using-tool')
 
   const complete = reducer.handle(session, event('turn/end', {
     turn: 1,
@@ -57,7 +59,7 @@ test('ask_user_question emits question asked/answered messages', () => {
     message: { source: { kind: 'tool', callId: 'ask-1' }, content: [{ type: 'tool-result', toolCallId: 'ask-1', content: [] }] },
   }, 3))
   assert.equal(answered[0].kind, CompanionMessageKind.STATE)
-  assert.equal(answered[0].state, CompanionState.THINKING)
+  assert.equal(answered[0].state, CompanionState.WORKING)
   assert.equal(answered[1].kind, CompanionMessageKind.QUESTION)
   assert.equal(answered[1].state, 'answered')
 })
