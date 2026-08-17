@@ -680,9 +680,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
         def _apply_window_size(self) -> None:
             pet_width = round(int(manifest["maxFrameWidth"]) * self.scale)
             pet_height = round(int(manifest["maxFrameHeight"]) * self.scale)
-            # 顶部净空 190：容纳多行状态卡（约 5 行）+ 呼吸浮动余量，
-            # 长问题换行增高后坐姿放大帧（1.08）也不被遮挡钳制或裁切。
-            self.setFixedSize(max(448, pet_width + 50), pet_height + 190)
+            # 顶部净空 160：单行状态卡下人物更贴近卡片（可见间距约为 190 时的一半），
+            # 仍可容纳约三行卡片且坐姿放大帧（1.08）不被遮挡钳制或裁切。
+            self.setFixedSize(max(448, pet_width + 50), pet_height + 160)
 
         def _restore_visible_position(self) -> None:
             saved_x = self.layout.get("x")
