@@ -17,12 +17,13 @@ stops its native Helper, and provides the Agent events that drive it. The transp
 frameless companion stays above other Windows apps, so you can see whether DSH is thinking,
 editing, testing, waiting, or finished while working in VS Code, a browser, or File Explorer.
 
-> Current version: `0.1.0-alpha.6` (custom fork) · Windows 10/11 x64
+> Current version: `0.1.0-alpha.6` (secondary development) · Windows 10/11 x64
 
-> This repository is a custom fork of DSH BigFish. On top of the upstream base it adds the
-> action-loop photo wall, an enable toggle, question/answer faces, and a compensatory
-> scale-up for seated working frames. It is **not published to npm** — install from this
-> repository.
+> This repository is the author's **secondary development** based on
+> [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet): it turns the standalone
+> desktop pet into a plugin driven by real DSH work state, and adds the action-loop photo
+> wall, an enable toggle, question/answer faces, and a compensatory scale-up for seated
+> working frames. It is **not published to npm** — install from this repository.
 
 ## What is it for?
 
@@ -94,7 +95,9 @@ installation or upgrade.
 
 ### 2. Install from source
 
-This repository is a custom fork and is **not published to npm**. Clone the repository (or
+This repository is a secondary development based on
+[QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) and is **not published to npm**.
+Clone the repository (or
 download a ready-made `dsh-dafeiyu-<version>.tgz` from
 [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)), then in the
 repository directory run:
@@ -306,8 +309,9 @@ npm run build:helper:windows
 - [Update, rollback, and uninstall](docs/UPDATING.md)
 - [Character asset license](ASSET_LICENSE.md)
 
-Related project: [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) is the
-standalone desktop-pet version. This repository is the DSH-only companion plugin.
+Upstream project: [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) is the
+standalone desktop-pet version this repository is based on. This repository is its secondary
+development — a DSH-only companion plugin.
 
 ## License
 

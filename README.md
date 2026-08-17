@@ -16,10 +16,12 @@ DSH 大肥鱼不是一个需要单独启动的桌宠应用。它由 DSH 插件�
 一起启动和退出，并以透明、无边框、始终置顶的原生窗口显示在桌面上。即使切换到
 VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修改、测试、等待还是已经完成。
 
-> 当前版本：`0.1.0-alpha.6`（自定义版）· Windows 10/11 x64
+> 当前版本：`0.1.0-alpha.6`（二次开发版）· Windows 10/11 x64
 
-> 本仓库是 DSH 大肥鱼的自定义分支，在上游基础上加入了动作循环照片墙、启用拨纽、
-> 提问/回答表情、坐姿补偿放大等改动，**未发布到 npm**，请从本仓库安装。
+> 本仓库是作者基于 [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) 的
+> **二次开发版本**：把原独立桌宠改造成由 DSH 真实工作状态驱动的插件桌宠，并加入了
+> 动作循环照片墙、启用拨纽、提问/回答表情、坐姿补偿放大等改动。**未发布到 npm**，
+> 请从本仓库安装。
 
 ## 它有什么用？
 
@@ -376,8 +378,8 @@ npm run build:helper:windows
 - [更新、回退与卸载](docs/UPDATING.md)
 - [角色视觉资产许可](ASSET_LICENSE.md)
 
-相关项目：[QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) 是独立桌宠版本；
-本仓库是只服务于 DSH 状态的插件版本。
+上游项目：[QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) 是作者基于的
+独立桌宠版本；本仓库是它的二次开发版本——只服务于 DSH 状态的插件桌宠。
 
 ## License
 
