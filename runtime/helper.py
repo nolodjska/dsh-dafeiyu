@@ -556,10 +556,12 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             if self.drag_phase == "release" and now_ms - self.release_start_ms >= 250:
                 self.drag_phase = "landed"
                 self.model.play_overlay("dragging_landed")
+                self._show_overlay("整理下衣领...", "", self.status_state, 1400)
                 self.landed_start_ms = now_ms
             elif self.drag_phase == "landed" and now_ms - self.landed_start_ms >= 1000:
                 self.drag_phase = "cry"
                 self.model.play_overlay("dragging_cry")
+                self._show_overlay("发型都乱了...", "", self.status_state, 1600)
                 self.cry_start_ms = now_ms
             elif self.drag_phase == "cry" and now_ms - self.cry_start_ms >= 1000:
                 self.model.clear_overlay()
@@ -983,6 +985,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                     self._cancel_working()
                     self._cancel_question()
                     self.model.play_overlay("dragging_hold")
+                    self._show_overlay("呀——！干什么啦！", "", self.status_state, 2600)
                 self.move(self.window_origin + event.globalPosition().toPoint() - self.drag_origin)
 
         def mouseReleaseEvent(self, event: QMouseEvent) -> None:
@@ -990,6 +993,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 if self.dragging:
                     self.drag_phase = "release"
                     self.model.play_overlay("dragging_release")
+                    self._show_overlay("呜....", "", self.status_state, 1500)
                     self.release_start_ms = self._now_ms()
                     self._clamp_to_visible_screen()
                     self._save_layout()
