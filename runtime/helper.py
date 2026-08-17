@@ -211,6 +211,7 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             self.search_queued_ms = 0
             self.search_queued_book_base = ""
             self.search_started_ms = 0
+            self.idle_micro_end_ms = None
             self.work_phase = "none"
             self.working_active = False
             self.work_phase_ms = 0
@@ -616,6 +617,11 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 self.question_phase = "none"
                 if self.model.overlay_clip_name == "answer":
                     self.model.clear_overlay()
+            # 待机微动作到时回到底图（扫地等单帧循环由计时控制，否则会一直播放）
+            if (self.idle_micro_end_ms is not None and now_ms >= self.idle_micro_end_ms
+                    and self.model.overlay_clip_name in self.model.idle_micro_clips):
+                self.idle_micro_end_ms = None
+                self.model.clear_overlay()
             self._log_animation("tick")
             card_now = self._current_card()
             if card_now:
@@ -649,7 +655,13 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
         def _play_idle_micro(self) -> None:
             if self.reduced_motion:
                 return
-            self.model.play_idle_micro(random.randrange(max(1, len(self.model.idle_micro_clips))))
+            if not self.model.play_idle_micro(random.randrange(max(1, len(self.model.idle_micro_clips)))):
+                return
+            clip = self.model.clips.get(self.model.overlay_clip_name or "")
+            if clip is not None:
+                # 非循环多帧 = 整段播放时长；单帧循环（如扫地）= 一帧时长（1.6s）
+                duration = clip.frame_ms if clip.loop else len(clip.frames) * clip.frame_ms
+                self.idle_micro_end_ms = self._now_ms() + max(300, duration)
             self._schedule_micro()
 
         def _schedule_micro(self) -> None:
