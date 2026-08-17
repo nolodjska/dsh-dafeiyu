@@ -680,9 +680,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
         def _apply_window_size(self) -> None:
             pet_width = round(int(manifest["maxFrameWidth"]) * self.scale)
             pet_height = round(int(manifest["maxFrameHeight"]) * self.scale)
-            # 顶部净空 160：单行状态卡下人物更贴近卡片（可见间距约为 190 时的一半），
-            # 仍可容纳约三行卡片且坐姿放大帧（1.08）不被遮挡钳制或裁切。
-            self.setFixedSize(max(448, pet_width + 50), pet_height + 160)
+            # 顶部净空 135：单行状态卡下人物贴近卡片（可见间距约 10px），
+            # 两行卡片时坐姿放大帧（1.08）仍仅裁到透明留白。
+            self.setFixedSize(max(448, pet_width + 50), pet_height + 135)
 
         def _restore_visible_position(self) -> None:
             saved_x = self.layout.get("x")
