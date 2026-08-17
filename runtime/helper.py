@@ -352,32 +352,33 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 else:
                     activity = None if self.reduced_motion else message.get("activity")
                     is_searching = activity == "searching"
-                    is_working = activity not in (None, "searching")
                     previous_base = self.model.base_clip_name
                     self.model.apply_state(state, activity)
                     # 提问/回答表情展示期间不切换搜索/工作的进出场动画，避免盖掉 question/answer 表情
                     if self.question_phase == "none":
-                        if is_searching:
-                            if not self.searching_active and self.search_phase not in SEARCH_DONE_PHASES:
-                                if (self.working_active and self.work_phase in {"stay", "micro"}
-                                        and self.model.overlay_clip_name is None):
-                                    # 坐姿干活中的查资料：先等宽限期，短查询保持坐姿不切书
-                                    self.search_queued = True
-                                    self.search_queued_ms = self._now_ms()
-                                    self.search_queued_book_base = self.model.base_clip_name
-                                    self.model.base_clip_name = previous_base
-                                    self.model._activate(previous_base)
-                                else:
-                                    self._begin_searching()
-                        elif self.searching_active:
-                            self._finish_searching()
-                        elif self.search_queued:
-                            # 查询在宽限期内就结束了：取消切书，保持工作姿态
-                            self.search_queued = False
-                            self.search_queued_ms = 0
-                        if state == "WORKING" and is_working:
+                        if state == "WORKING":
+                            # 工作状态（查资料是其子态）：只在进入时掏出凳子/打开笔记本，
+                            # 之后保持 working 默认坐姿，不因活动在编辑/搜索之间变化而反复坐下
                             if not self.working_active and self.work_phase != "seat_out":
                                 self._begin_working()
+                            if is_searching:
+                                if not self.searching_active and self.search_phase not in SEARCH_DONE_PHASES:
+                                    if (self.working_active and self.work_phase in {"stay", "micro"}
+                                            and self.model.overlay_clip_name is None):
+                                        # 坐姿干活中的查资料：先等宽限期，短查询保持坐姿不切书
+                                        self.search_queued = True
+                                        self.search_queued_ms = self._now_ms()
+                                        self.search_queued_book_base = self.model.base_clip_name
+                                        self.model.base_clip_name = previous_base
+                                        self.model._activate(previous_base)
+                                    else:
+                                        self._begin_searching()
+                            elif self.searching_active:
+                                self._finish_searching()
+                            elif self.search_queued:
+                                # 查询在宽限期内就结束了：取消切书，保持工作姿态
+                                self.search_queued = False
+                                self.search_queued_ms = 0
                         elif self.working_active:
                             self._finish_working()
                     persistent = state in {"THINKING", "WORKING", "WAITING", "ERROR"}
@@ -595,7 +596,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 # 入场完成（自动回到 working_stay 底图）
                 self.work_phase = "stay"
                 self.work_micro_next_ms = now_ms + random.randint(3500, 8000)
-            elif self.work_phase == "stay" and now_ms >= self.work_micro_next_ms:
+            elif (self.work_phase == "stay" and now_ms >= self.work_micro_next_ms
+                  and not self.searching_active and not self.search_queued):
                 clip = random.choice(WORKING_MICRO_CLIPS)
                 self.work_phase = "micro"
                 self.model.play_overlay(clip)
