@@ -894,9 +894,12 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 x = (self.width() - 2 * fish_offset) // 2 + offset_x
             else:
                 x = (self.width() - pixmap_width) // 2 + offset_x
-            y = self.height() - pixmap_height - 8 + offset_y
+            # 先按底部锚定并做状态卡遮挡钳制，再叠加动作偏移（呼吸/弹跳等），
+            # 否则放大后的坐姿帧 y 低于钳制线时呼吸的 offset_y 会被整体丢弃。
+            y = self.height() - pixmap_height - 8
             if bubble_height > y:
                 y = bubble_height
+            y += offset_y
             painter.drawPixmap(x, y, pixmap_width, pixmap_height, pixmap)
 
         def mousePressEvent(self, event: QMouseEvent) -> None:
