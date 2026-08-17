@@ -1,0 +1,52 @@
+import assert from 'node:assert/strict'
+import { readFile, readdir } from 'node:fs/promises'
+import { dirname, join, relative, resolve, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import test from 'node:test'
+
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const assetRoot = join(repositoryRoot, 'assets', 'pet')
+const manifestPath = join(repositoryRoot, 'assets', 'pet-manifest.json')
+
+async function pngFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true })
+  const files = []
+  for (const entry of entries) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) files.push(...await pngFiles(path))
+    else if (entry.isFile() && entry.name.endsWith('.png')) files.push(path)
+  }
+  return files
+}
+
+test('pet manifest allowlists every bundled runtime frame', async () => {
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+  assert.equal(manifest.formatVersion, 1)
+  assert.equal(manifest.baseSize, 238)
+  assert.ok(Object.keys(manifest.clips).length >= 18)
+
+  const declared = new Set()
+  for (const [clipName, clip] of Object.entries(manifest.clips)) {
+    assert.ok(Array.isArray(clip.frames) && clip.frames.length > 0, `${clipName} has no frames`)
+    assert.ok(Number.isInteger(clip.frameMs) && clip.frameMs > 0, `${clipName} has invalid frameMs`)
+    for (const frame of clip.frames) {
+      assert.equal(typeof frame, 'string')
+      const path = resolve(assetRoot, frame)
+      assert.ok(path.startsWith(`${assetRoot}${sep}`), `${clipName} escapes the asset root`)
+      assert.equal(declared.has(frame), false, `duplicate frame declaration: ${frame}`)
+      declared.add(frame)
+      const bytes = await readFile(path)
+      assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10])
+      const width = bytes.readUInt32BE(16)
+      const height = bytes.readUInt32BE(20)
+      assert.ok(width > 0 && width <= manifest.maxFrameWidth, `${frame} width exceeds the runtime envelope`)
+      assert.ok(height > 0 && height <= manifest.maxFrameHeight, `${frame} height exceeds the runtime envelope`)
+    }
+  }
+
+  const bundled = new Set((await pngFiles(assetRoot)).map((path) => relative(assetRoot, path).split(sep).join('/')))
+  assert.deepEqual([...bundled].sort(), [...declared].sort())
+  for (const clip of Object.values(manifest.stateMap)) assert.ok(manifest.clips[clip])
+  for (const clip of Object.values(manifest.workingActivityMap)) assert.ok(manifest.clips[clip])
+  for (const clip of manifest.idleMicroClips) assert.ok(manifest.clips[clip])
+})
