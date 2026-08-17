@@ -628,9 +628,9 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
         def _apply_window_size(self) -> None:
             pet_width = round(int(manifest["maxFrameWidth"]) * self.scale)
             pet_height = round(int(manifest["maxFrameHeight"]) * self.scale)
-            # 顶部净空 150：容纳换行后的两行状态卡（约 127px）+ 呼吸浮动余量，
-            # 避免坐姿放大帧（1.08）在卡片增高后被遮挡钳制或底部裁切。
-            self.setFixedSize(max(448, pet_width + 50), pet_height + 150)
+            # 顶部净空 190：容纳多行状态卡（约 5 行）+ 呼吸浮动余量，
+            # 长问题换行增高后坐姿放大帧（1.08）也不被遮挡钳制或裁切。
+            self.setFixedSize(max(448, pet_width + 50), pet_height + 190)
 
         def _restore_visible_position(self) -> None:
             saved_x = self.layout.get("x")
@@ -814,22 +814,13 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 typed_detail = detail[:self.type_typed_detail]
 
                 def title_layout(text: str) -> tuple[str, int]:
-                    """返回 (可绘制标题, 占用行高)：自动换行，最多 3 行，超出截断。"""
+                    """返回 (可绘制标题, 占用行高)：自动换行，行数不限，卡片动态增高。"""
                     if not text:
-                        return "", line_h
+                        return "", max(27, line_h)
                     height = fm_title.boundingRect(
                         0, 0, text_width, 0, Qt.TextFlag.TextWordWrap, text,
                     ).height()
-                    lines = max(1, min(3, (height + line_h - 1) // line_h))
-                    budget = lines * line_h
-                    if height > budget:
-                        cut = text
-                        while cut and fm_title.boundingRect(
-                            0, 0, text_width, 0, Qt.TextFlag.TextWordWrap, cut + "…",
-                        ).height() > budget:
-                            cut = cut[:-1]
-                        text = cut + "…"
-                    return text, max(27, lines * line_h)
+                    return text, max(27, height)
 
                 display_title, title_height = title_layout(typed_title)
                 detail_y = card_y + 15 + title_height + 4
