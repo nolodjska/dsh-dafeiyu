@@ -6,7 +6,7 @@
 
 Enabled by DSH, owned by the DSH lifecycle, rendered on the desktop.
 
-[中文](README.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [Latest release](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md)
+[中文](README.md) · [GitHub](https://github.com/nolodjska/dsh-dafeiyu) · [Latest release](https://github.com/nolodjska/dsh-dafeiyu/releases/latest) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md)
 
 </div>
 
@@ -17,7 +17,12 @@ stops its native Helper, and provides the Agent events that drive it. The transp
 frameless companion stays above other Windows apps, so you can see whether DSH is thinking,
 editing, testing, waiting, or finished while working in VS Code, a browser, or File Explorer.
 
-> Current version: `0.1.0-alpha.6` · Windows MVP Alpha
+> Current version: `0.1.0-alpha.6` (custom fork) · Windows 10/11 x64
+
+> This repository is a custom fork of DSH BigFish. On top of the upstream base it adds the
+> action-loop photo wall, an enable toggle, question/answer faces, and a compensatory
+> scale-up for seated working frames. It is **not published to npm** — install from this
+> repository.
 
 ## What is it for?
 
@@ -72,7 +77,8 @@ When several DSH sessions run at once, the default attention priority is:
 - Windows 10/11 x64
 - A working DeepSeek Harness WebUI installation
 - A DSH CLI that supports `plugin --profile web`
-- `dsh-dafeiyu@alpha` from npm, or a `.tgz` archive from GitHub Releases
+- The source archive of this repository (`nolodjska/dsh-dafeiyu`), or a `.tgz` from
+  GitHub Releases
 
 Regular users do **not** need Python or PySide6 and should not launch
 `dsh-dafeiyu-helper.exe` manually. The Windows Helper is bundled in the release archive.
@@ -86,35 +92,35 @@ The current Alpha build uses Simplified Chinese for the settings UI and desktop 
 Stop the DSH Host, not only the browser tab. An old Helper should not remain active during
 installation or upgrade.
 
-### 2. Install with one command
+### 2. Install from source
 
-Open PowerShell in your DSH installation directory, for example:
+This repository is a custom fork and is **not published to npm**. Clone the repository (or
+download a ready-made `dsh-dafeiyu-<version>.tgz` from
+[GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)), then in the
+repository directory run:
+
+```powershell
+cd D:\path\to\dsh-dafeiyu-main
+npm pack
+```
+
+This produces `dsh-dafeiyu-0.1.0-alpha.6.tgz` (the prebuilt Windows Helper is bundled;
+**do not extract it**). Install it from the DSH directory:
 
 ```powershell
 cd D:\DSH
+pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-0.1.0-alpha.6.tgz"
 ```
 
-Install the current Alpha from npm:
-
-```powershell
-pnpm exec dsh plugin --profile web add dsh-dafeiyu@alpha
-```
-
-If `dsh` is already available globally, the command is simply:
-
-```powershell
-dsh plugin --profile web add dsh-dafeiyu@alpha
-```
+If `dsh` is already available globally, replace `pnpm exec dsh` with `dsh`.
 
 ### 3. GitHub Release fallback
 
-Open [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest) and download:
+Open [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest) and download:
 
 ```text
 dsh-dafeiyu-<version>.tgz
 ```
-
-Do not extract it.
 
 Do not extract it. Install the downloaded archive from the DSH directory:
 
@@ -129,7 +135,14 @@ automatically. Do not start the Helper yourself.
 
 ### 5. Open the settings
 
-In the DSH WebUI, go to:
+In the DSH WebUI, go to (recommended):
+
+```text
+Settings → Desktop Pet
+```
+
+The **Desktop Pet** page offers the portrait, the enable toggle, and the action-loop photo
+wall. All settings are also available under:
 
 ```text
 Settings → Plugins → Plugin configuration → BigFish Desktop Companion
@@ -180,29 +193,20 @@ DSH persists these settings, so a normal plugin update does not require reconfig
 
 ## Update
 
-An installed plugin does **not** change when new commits appear on GitHub. After a new version
-is published, fully exit DSH and update the npm Alpha package:
+An installed plugin does **not** change when new commits appear on GitHub. To update, fully
+exit DSH, pull the latest code in the repository and repack it:
 
 ```powershell
+cd D:\path\to\dsh-dafeiyu-main
+git pull
+npm pack
 cd D:\DSH
-pnpm exec dsh plugin --profile web update dsh-dafeiyu@alpha
-```
-
-Running the install command again also resolves the newest version behind the `alpha` tag:
-
-```powershell
-pnpm exec dsh plugin --profile web add dsh-dafeiyu@alpha
+pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-<version>.tgz"
 ```
 
 Users who installed from GitHub Releases can download the new `.tgz` and install it over the
-old version:
-
-```powershell
-pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<new-version>.tgz"
-```
-
-All three paths replace the plugin and bundled Windows Helper while retaining settings saved
-by DSH. See [Update and rollback](docs/UPDATING.md) for details.
+old version. Either path replaces the plugin and bundled Windows Helper while retaining
+settings saved by DSH. See [Update and rollback](docs/UPDATING.md) for details.
 
 ## Roll back
 
@@ -232,7 +236,7 @@ an inactive copy of historical settings; it does not start a process or open a p
 
 1. Confirm that you installed into `--profile web`.
 2. Fully stop and restart the DSH Host.
-3. Open “Settings → Plugins → Plugin configuration” and confirm that BigFish is enabled.
+3. Open “Settings → Desktop Pet” and confirm that the “Enable desktop pet” toggle is on.
 4. Use the Windows x64 release archive. A source-only clone may not contain the prebuilt Helper.
 
 </details>

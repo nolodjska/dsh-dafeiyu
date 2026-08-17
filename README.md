@@ -6,7 +6,7 @@
 
 入口属于 DSH，生命周期属于 DSH，显示层属于桌面。
 
-[English](README_EN.md) · [npm](https://www.npmjs.com/package/dsh-dafeiyu) · [下载最新版本](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md)
+[English](README_EN.md) · [GitHub](https://github.com/nolodjska/dsh-dafeiyu) · [下载最新版本](https://github.com/nolodjska/dsh-dafeiyu/releases/latest) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md)
 
 </div>
 
@@ -16,7 +16,10 @@ DSH 大肥鱼不是一个需要单独启动的桌宠应用。它由 DSH 插件�
 一起启动和退出，并以透明、无边框、始终置顶的原生窗口显示在桌面上。即使切换到
 VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修改、测试、等待还是已经完成。
 
-> 当前版本：`0.1.0-alpha.6` · Windows MVP Alpha
+> 当前版本：`0.1.0-alpha.6`（自定义版）· Windows 10/11 x64
+
+> 本仓库是 DSH 大肥鱼的自定义分支，在上游基础上加入了动作循环照片墙、启用拨纽、
+> 提问/回答表情、坐姿补偿放大等改动，**未发布到 npm**，请从本仓库安装。
 
 ## 它有什么用？
 
@@ -24,6 +27,8 @@ VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修�
 - **反馈来自真实 Agent 事件**：不会读取屏幕，也不会把你在其他软件里的操作误判为 DSH 工作。
 - **展示足够但不过量的信息**：项目名、当前阶段、正在进行的步骤和真实待办进度会显示在状态卡上。
 - **有生命力但不打扰**：思考、查找、修改、执行、验证、等待、完成和错误都有对应动作与自然文案。
+- **看得见改了什么**：设置页的动作循环照片墙逐帧展示每个动作的图片，并可一键在
+  系统文件资源管理器中定位到对应目录。
 - **没有第二套应用入口**：无需单独运行 Helper、安装 Python或配置额外端口。
 
 如果 DSH 没有提供待办清单，大肥鱼只显示“分析阶段”“实现阶段”“验证阶段”等可靠信息，
@@ -71,7 +76,7 @@ stateDiagram-v2
 - Windows 10/11 x64
 - 已安装并能正常运行的 DeepSeek Harness WebUI
 - DSH CLI 中可以使用 `plugin --profile web` 命令
-- npm 上的 `dsh-dafeiyu@alpha`，或 GitHub Release 中的 `.tgz` 安装包
+- 本仓库（`nolodjska/dsh-dafeiyu`）的源码包，或 GitHub Release 中的 `.tgz` 安装包
 
 普通用户**不需要**安装 Python、PySide6 或单独运行
 `dsh-dafeiyu-helper.exe`。Windows Helper 已经包含在发布包里。
@@ -84,37 +89,37 @@ stateDiagram-v2
 
 先关闭 DSH Host，而不只是关闭浏览器标签页。安装或更新时不要让旧版插件继续运行。
 
-### 2. 一行命令安装
+### 2. 从源码打包安装
 
-在 PowerShell 中进入你的 DSH 安装目录，例如：
+本仓库未发布到 npm，需要先在仓库目录打包出 `.tgz`。克隆仓库（或在
+[GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)
+下载现成的 `dsh-dafeiyu-<version>.tgz`），然后在仓库目录执行：
+
+```powershell
+cd D:\path\to\dsh-dafeiyu-main
+npm pack
+```
+
+会生成 `dsh-dafeiyu-0.1.0-alpha.6.tgz`（随包携带预构建的 Windows Helper，
+**不解压**）。接着在 DSH 安装目录安装：
 
 ```powershell
 cd D:\DSH
+pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-0.1.0-alpha.6.tgz"
 ```
 
-然后从 npm 安装当前 Alpha：
-
-```powershell
-pnpm exec dsh plugin --profile web add dsh-dafeiyu@alpha
-```
-
-如果你的系统已经能直接使用全局 `dsh` 命令，只需要：
-
-```powershell
-dsh plugin --profile web add dsh-dafeiyu@alpha
-```
+如果你的系统已经能直接使用全局 `dsh` 命令，把 `pnpm exec dsh` 换成 `dsh` 即可。
 
 ### 3. GitHub Release 备用安装方式
 
-进入 [GitHub Releases](https://github.com/QCYTSN/dsh-dafeiyu/releases/latest)，下载最新的：
+进入 [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)，
+下载最新的：
 
 ```text
 dsh-dafeiyu-<version>.tgz
 ```
 
-不要解压这个文件。
-
-不解压，在 DSH 目录中直接安装下载的插件包：
+不要解压这个文件。不解压，在 DSH 目录中直接安装下载的插件包：
 
 ```powershell
 pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<version>.tgz"
@@ -126,7 +131,13 @@ pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<vers
 
 ### 5. 找到设置入口
 
-在 DSH WebUI 中进入：
+在 DSH WebUI 中进入（推荐）:
+
+```text
+设置 → 桌宠
+```
+
+「桌宠」页提供立绘、启用拨纽和动作循环照片墙。也可以在插件配置中调整全部设置：
 
 ```text
 设置 → 插件 → 插件配置 → 大肥鱼桌面伴侣
@@ -167,6 +178,9 @@ pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<vers
 
 设置由 DSH 保存，更新插件后通常不需要重新配置。
 
+「桌宠」设置页还提供动作循环照片墙，用于逐帧查看每个动作循环的图片并定位文件，
+详见下文「动作循环照片墙与 manifest 契约（二次开发）」。
+
 ## 桌面互动
 
 - **拖动**：按住大肥鱼移动位置，位置会自动保存。
@@ -179,28 +193,20 @@ pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<vers
 
 ## 更新插件
 
-GitHub 仓库出现新提交后，已经安装的插件**不会自动变化**。新版本发布后，完全退出
-DSH，然后更新 npm Alpha 包：
+本仓库出现新提交后，已经安装的插件**不会自动变化**。更新时完全退出 DSH，在仓库
+目录拉取最新代码并重新打包安装：
 
 ```powershell
+cd D:\path\to\dsh-dafeiyu-main
+git pull
+npm pack
 cd D:\DSH
-pnpm exec dsh plugin --profile web update dsh-dafeiyu@alpha
+pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-<version>.tgz"
 ```
 
-也可以再次执行安装命令，它会解析 `alpha` 标签指向的新版本：
-
-```powershell
-pnpm exec dsh plugin --profile web add dsh-dafeiyu@alpha
-```
-
-使用 GitHub Release 安装的用户，可以下载新 `.tgz` 后覆盖安装：
-
-```powershell
-pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<new-version>.tgz"
-```
-
-以上方式都会替换插件及随包携带的 Windows Helper，并保留 DSH 已保存的设置。详细
-说明见 [插件更新与回退](docs/UPDATING.md)。
+使用 GitHub Release 安装的用户，下载新 `.tgz` 后覆盖安装即可。以上方式都会替换
+插件及随包携带的 Windows Helper，并保留 DSH 已保存的设置。详细说明见
+[插件更新与回退](docs/UPDATING.md)。
 
 ## 回退到旧版本
 
@@ -230,7 +236,7 @@ pnpm exec dsh plugin --profile web remove dsh-dafeiyu
 
 1. 确认安装使用的是 `--profile web`。
 2. 完全退出并重新启动 DSH Host。
-3. 进入“设置 → 插件 → 插件配置”确认“启用大肥鱼”已经勾选。
+3. 进入“设置 → 桌宠”确认“启用桌宠”拨纽已经打开。
 4. 确认使用 Windows x64 发布包，而不是只克隆了缺少预构建 Helper 的源码。
 
 </details>
@@ -255,7 +261,7 @@ pnpm exec dsh plugin --profile web remove dsh-dafeiyu
 <summary><strong>右键选择“本次关闭”后为什么没有自动回来？</strong></summary>
 
 这是预期行为。“本次关闭”会抑制当前 DSH 运行期间的自动重启；完全退出并重新启动
-DSH 后会恢复。若想永久关闭，请在 DSH 设置中取消“启用大肥鱼”。
+DSH 后会恢复。若想永久关闭，请在 DSH 设置中关闭“启用桌宠”拨纽。
 
 </details>
 
