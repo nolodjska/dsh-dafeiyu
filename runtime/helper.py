@@ -655,13 +655,14 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
         def _play_idle_micro(self) -> None:
             if self.reduced_motion:
                 return
-            if not self.model.play_idle_micro(random.randrange(max(1, len(self.model.idle_micro_clips)))):
-                return
-            clip = self.model.clips.get(self.model.overlay_clip_name or "")
-            if clip is not None:
+            self.model.play_idle_micro(random.randrange(max(1, len(self.model.idle_micro_clips))))
+            if self.model.overlay_clip_name in self.model.idle_micro_clips:
+                clip = self.model.clips[self.model.overlay_clip_name]
                 # 非循环多帧 = 整段播放时长；单帧循环（如扫地）= 一帧时长（1.6s）
                 duration = clip.frame_ms if clip.loop else len(clip.frames) * clip.frame_ms
                 self.idle_micro_end_ms = self._now_ms() + max(300, duration)
+            # 无论本次是否真的播放（可能被其他动画占用），都必须重新调度，
+            # 否则定时器死亡后待机表情再也不会出现
             self._schedule_micro()
 
         def _schedule_micro(self) -> None:
