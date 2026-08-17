@@ -73,6 +73,17 @@ When several DSH sessions run at once, the default attention priority is:
 
 `Waiting > Error > Working > Thinking > Idle`
 
+Working-state details:
+
+- **No flicker between consecutive tools:** once a turn uses a tool, the pet keeps the
+  working (seated) pose until the turn ends instead of standing up, thinking, and sitting
+  down again between every tool.
+- **Balancing work and lookups:** quick searches interleaved with edits (< 1.2s) keep the
+  seated pose; only sustained searches (≥ 1.2s) make the pet pick up the book, and only
+  long ones (≥ 2.4s) end with the starry/happy celebration.
+- **Status-card caption:** while asking a question the caption shows the actual question,
+  wrapping onto extra lines and growing the card when it does not fit.
+
 ## Requirements
 
 - Windows 10/11 x64
@@ -190,6 +201,10 @@ DSH persists these settings, so a normal plugin update does not require reconfig
 
 - **Drag:** move BigFish; its position is saved automatically.
 - **Click or double-click:** trigger brief head-pat, poke, or tail reactions, then return to the latest DSH state.
+- **Question/answer:** when DSH asks you something (`ask_user_question`), the `question`
+  face shows and stays, and the status-card caption displays the actual question (wrapping
+  and growing the card when it does not fit on one line). After you answer, the `answer`
+  face shows briefly (~2.4s) before returning.
 - **Right-click:** change size, reduce motion, hide for now, or close for this run.
 - **Hide for now:** hides the window without disabling the plugin.
 - **Close for this run:** closes the current Helper and suppresses restart until the next DSH launch.
