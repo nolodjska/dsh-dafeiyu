@@ -6,7 +6,7 @@
 
 Enabled by DSH, owned by the DSH lifecycle, rendered on the desktop.
 
-[中文](README.md) · [GitHub](https://github.com/nolodjska/dsh-dafeiyu) · [Latest release](https://github.com/nolodjska/dsh-dafeiyu/releases/latest) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md)
+[中文](README.md) · [GitHub](https://github.com/nolodjska/dsh-dafeiyu) · [Latest release](https://github.com/nolodjska/dsh-dafeiyu/releases/tag/v0.1.0-alpha.6) · [Update and rollback](docs/UPDATING.md) · [Acceptance notes](docs/ACCEPTANCE.md)
 
 </div>
 
@@ -110,7 +110,7 @@ This repository is a secondary development based on
 [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) and is **not published to npm**.
 Clone the repository (or
 download a ready-made `dsh-dafeiyu-<version>.tgz` from
-[GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)), then in the
+[GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/tag/v0.1.0-alpha.6)), then in the
 repository directory run:
 
 ```powershell
@@ -130,7 +130,7 @@ If `dsh` is already available globally, replace `pnpm exec dsh` with `dsh`.
 
 ### 3. GitHub Release fallback
 
-Open [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest) and download:
+Open [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/tag/v0.1.0-alpha.6) and download:
 
 ```text
 dsh-dafeiyu-<version>.tgz

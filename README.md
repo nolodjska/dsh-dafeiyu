@@ -6,7 +6,7 @@
 
 入口属于 DSH，生命周期属于 DSH，显示层属于桌面。
 
-[English](README_EN.md) · [GitHub](https://github.com/nolodjska/dsh-dafeiyu) · [下载最新版本](https://github.com/nolodjska/dsh-dafeiyu/releases/latest) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md)
+[English](README_EN.md) · [GitHub](https://github.com/nolodjska/dsh-dafeiyu) · [下载最新版本](https://github.com/nolodjska/dsh-dafeiyu/releases/tag/v0.1.0-alpha.6) · [更新与回退](docs/UPDATING.md) · [验收记录](docs/ACCEPTANCE.md)
 
 </div>
 
@@ -102,7 +102,7 @@ stateDiagram-v2
 ### 2. 从源码打包安装
 
 本仓库未发布到 npm，需要先在仓库目录打包出 `.tgz`。克隆仓库（或在
-[GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)
+[GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/tag/v0.1.0-alpha.6)
 下载现成的 `dsh-dafeiyu-<version>.tgz`），然后在仓库目录执行：
 
 ```powershell
@@ -122,7 +122,7 @@ pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-
 
 ### 3. GitHub Release 备用安装方式
 
-进入 [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/latest)，
+进入 [GitHub Releases](https://github.com/nolodjska/dsh-dafeiyu/releases/tag/v0.1.0-alpha.6)，
 下载最新的：
 
 ```text
