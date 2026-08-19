@@ -149,18 +149,15 @@ automatically. Do not start the Helper yourself.
 
 ### 5. Open the settings
 
-In the DSH WebUI, go to (recommended):
+In the DSH WebUI, go to:
 
 ```text
 Settings → Desktop Pet
 ```
 
-The **Desktop Pet** page offers the portrait, the enable toggle, and the action-loop photo
-wall. All settings are also available under:
-
-```text
-Settings → Plugins → Plugin configuration → BigFish Desktop Companion
-```
+The **Desktop Pet** page centralizes every setting: the portrait, the enable toggle,
+character size, activity level, reduced motion, subagent inclusion, and the action-loop
+photo wall.
 
 ![DSH BigFish plugin settings](docs/images/dsh-bigfish-settings.png)
 

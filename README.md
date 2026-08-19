@@ -141,17 +141,14 @@ pnpm exec dsh plugin --profile web add "C:\Users\you\Downloads\dsh-dafeiyu-<vers
 
 ### 5. 找到设置入口
 
-在 DSH WebUI 中进入（推荐）:
+在 DSH WebUI 中进入：
 
 ```text
 设置 → 桌宠
 ```
 
-「桌宠」页提供立绘、启用拨纽和动作循环照片墙。也可以在插件配置中调整全部设置：
-
-```text
-设置 → 插件 → 插件配置 → 大肥鱼桌面伴侣
-```
+「桌宠」页集中提供全部设置：立绘、启用拨纽、角色大小、活跃程度、减少动态、响应
+子 Agent，以及动作循环照片墙。
 
 ![DSH 大肥鱼插件设置入口](docs/images/dsh-bigfish-settings.png)
 
