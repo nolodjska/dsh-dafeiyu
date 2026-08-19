@@ -313,9 +313,23 @@ function mount(ctx, config = {}, eventCtx = ctx) {
     if (ns === 'ui-theme' && bridge) sendTheme()
   }, { global: true })
 
+  let lastRuntimeSettings = settings.get()
   const unwatch = settings.watch((next) => {
-    stopRuntime()
-    startRuntime(next)
+    const enabledChanged = (next.enabled ?? defaults.enabled) !== (lastRuntimeSettings.enabled ?? defaults.enabled)
+    const subagentsChanged = (next.includeSubagents === true) !== (lastRuntimeSettings.includeSubagents === true)
+    lastRuntimeSettings = next
+    if (enabledChanged || subagentsChanged || !bridge) {
+      // 启用/子 Agent 开关需要重建运行时；其余设置实时下发，避免每次调整
+      // 都重启 helper（旧窗口还要播 3.4s 离场，快速拖动会叠加出多个窗口）。
+      stopRuntime()
+      startRuntime(next)
+      return
+    }
+    bridge?.send(createMessage(CompanionMessageKind.SETTINGS, {
+      scale: next.scale ?? defaults.scale,
+      activityLevel: next.activityLevel ?? defaults.activityLevel,
+      reducedMotion: next.reducedMotion === true,
+    }))
   })
   if (typeof ctx.inject === 'function') {
     ctx.inject(['webServer'], (httpCtx) => {

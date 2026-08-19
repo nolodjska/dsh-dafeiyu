@@ -266,6 +266,23 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 self.is_dark = self._system_is_dark()
                 self.update()
 
+        def _apply_settings(self, message: dict[str, Any]) -> None:
+            """实时应用大小/活跃程度/减少动态，无需重启进程（避免叠加出多个窗口）。"""
+            scale = message.get("scale")
+            if isinstance(scale, (int, float)) and not isinstance(scale, bool):
+                self.scale = min(1.4, max(0.7, float(scale)))
+                self._apply_window_size()
+                self._save_layout()
+            activity = message.get("activityLevel")
+            if activity in {"quiet", "normal", "lively"}:
+                self.activity_level = activity
+                self._schedule_micro()
+            reduced = message.get("reducedMotion")
+            if isinstance(reduced, bool):
+                self.reduced_motion = reduced
+                self._schedule_micro()
+            self._log_animation("apply_settings")
+
         def set_theme(self, preference: str) -> None:
             self.theme_preference = preference if preference in {"light", "dark", "system"} else "system"
             if self.theme_preference == "dark":
@@ -280,6 +297,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
             kind = message.get("kind")
             if kind == "theme":
                 self.set_theme(str(message.get("preference", "system")))
+                self.update()
+                return
+            if kind == "settings":
+                self._apply_settings(message)
                 self.update()
                 return
             if kind == "question":
