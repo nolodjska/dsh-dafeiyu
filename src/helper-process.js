@@ -11,10 +11,14 @@ import {
 
 const here = dirname(fileURLToPath(import.meta.url))
 const defaultHelperPath = resolve(here, '..', 'runtime', 'helper.py')
-const bundledHelperPath = resolve(here, '..', 'runtime', 'bin', 'win32-x64', 'dsh-dafeiyu-helper.exe')
+const bundledHelperPath = process.platform === 'darwin'
+  ? resolve(here, '..', 'runtime', 'bin', 'darwin-arm64', 'dsh-dafeiyu-helper')
+  : resolve(here, '..', 'runtime', 'bin', 'win32-x64', 'dsh-dafeiyu-helper.exe')
 
 function defaultCommand() {
-  if (process.platform === 'win32' && existsSync(bundledHelperPath)) return bundledHelperPath
+  const bundledSupported = (process.platform === 'win32' && process.arch === 'x64')
+    || (process.platform === 'darwin' && process.arch === 'arm64')
+  if (bundledSupported && existsSync(bundledHelperPath)) return bundledHelperPath
   return process.env.DSH_DAFEIYU_PYTHON || (process.platform === 'win32' ? 'py' : 'python3')
 }
 

@@ -245,6 +245,8 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 | Qt.WindowType.Tool
             )
             self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+            if sys.platform == "darwin":
+                self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow, True)
             self._apply_window_size()
             QTimer.singleShot(0, self._restore_visible_position)
             if "enter" in self.model.clips:
@@ -880,9 +882,10 @@ def run_visual(recorder: EventRecorder, snapshot_path: Path | None = None) -> in
                 text_x = card_x + 24
                 palette = self._palette()
                 # 标题支持换行：最多 3 行，超出截断加省略号；状态卡按需增高
-                title_font = QFont("Microsoft YaHei UI", 11)
+                font_family = "PingFang SC" if sys.platform == "darwin" else "Microsoft YaHei UI"
+                title_font = QFont(font_family, 11)
                 title_font.setWeight(QFont.Weight.DemiBold)
-                detail_font = QFont("Microsoft YaHei UI", 9)
+                detail_font = QFont(font_family, 9)
                 fm_title = QFontMetrics(title_font)
                 line_h = max(1, fm_title.height())
                 typed_title = title[:self.type_typed_title]

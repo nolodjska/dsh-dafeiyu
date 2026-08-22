@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Darwin arm64 Helper selection, macOS window/layout behavior, Finder support, and a
+  cross-platform macOS build script while retaining Windows x64 support.
 - DSH 设置页新增「桌宠」导航页：立绘、启用拨纽（switch）、动作循环照片墙
 - 照片墙由 `pet-manifest.json` 的 `photoWall` 契约驱动，支持热重载与二次开发
 - 每个动作循环一行缩略图，带「打开文件夹」按钮（`workspaces.openPath`）
