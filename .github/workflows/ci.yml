@@ -152,11 +152,11 @@ jobs:
           file runtime/bin/darwin-arm64/dsh-dafeiyu-helper | grep -q 'Mach-O 64-bit executable arm64'
 
       - name: Create cross-platform package
-        run: npm pack
+        run: npm pack --silent > package-file.txt
 
       - name: Verify cross-platform package contents
         run: |
-          package_file="$(node -e \"const p=require('./package.json'); process.stdout.write(p.name + '-' + p.version + '.tgz')\")"
+          package_file="$(tr -d '\r\n' < package-file.txt)"
           test -f "$package_file"
           tar -tzf "$package_file" | grep -Fxq 'package/runtime/bin/win32-x64/dsh-dafeiyu-helper.exe'
           tar -tzf "$package_file" | grep -Fxq 'package/runtime/bin/darwin-arm64/dsh-dafeiyu-helper'
