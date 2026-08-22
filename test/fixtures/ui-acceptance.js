@@ -4,8 +4,11 @@ const url = process.argv[2]
 const screenshot = process.argv[3]
 if (!url || !screenshot) throw new Error('usage: ui-acceptance <url> <screenshot>')
 
+const executablePath = process.env.CHROME_PATH || (process.platform === 'darwin'
+  ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  : 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe')
 const browser = await chromium.launch({
-  executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+  executablePath,
   headless: true,
 })
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, locale: 'zh-CN' })

@@ -47,3 +47,15 @@ Date: 2026-08-14
   explicit `ready` handshake and allows 60 seconds before treating startup as failed.
 
 These measurements are a local alpha baseline, not a cross-machine performance guarantee.
+
+## macOS Apple Silicon migration baseline
+
+The shared source now includes Darwin arm64 Helper selection, the macOS Application Support
+layout path, Finder folder opening, `WA_MacAlwaysShowToolWindow`, and the `PingFang SC` font
+selection. The macOS Helper is built with `scripts/build-helper.sh` into
+`runtime/bin/darwin-arm64/dsh-dafeiyu-helper`.
+
+Node and Python tests can run on any development host after dependencies are installed. Native
+macOS transparency, multiple-Space visibility, Finder behavior, Gatekeeper handling, and the
+Darwin arm64 PyInstaller binary require a real Apple Silicon macOS acceptance run; this document
+does not mark those checks as passed from a non-macOS host.

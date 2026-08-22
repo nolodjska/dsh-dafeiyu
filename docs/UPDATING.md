@@ -32,6 +32,10 @@ pnpm exec dsh plugin --profile web add "C:\下载目录\dsh-dafeiyu-<version>.tg
 插件、设置卡和随包携带的 Windows Helper 会一起更新。用户设置由 DSH 保存，正常
 更新不会要求重新配置。
 
+macOS Apple Silicon 用户下载或构建包含 `runtime/bin/darwin-arm64/dsh-dafeiyu-helper`
+的包，并在 macOS 终端使用同一条 `pnpm exec dsh plugin --profile web add` 命令安装。
+首次运行若被 Gatekeeper 拦截，清除 Helper 的 `com.apple.quarantine` 属性后再重启 DSH。
+
 ## 回退
 
 保留上一个可用版本的 `.tgz`，完全退出 DSH 后，用同一条 `add` 命令重新安装旧包：

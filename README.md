@@ -2,7 +2,7 @@
 
 # DSH 大肥鱼 🐋
 
-**住在 Windows 桌面上、由 DeepSeek Harness 真实工作状态驱动的 Agent 伴侣。**
+**住在 Windows 或 macOS 桌面上、由 DeepSeek Harness 真实工作状态驱动的 Agent 伴侣。**
 
 入口属于 DSH，生命周期属于 DSH，显示层属于桌面。
 
@@ -16,7 +16,7 @@ DSH 大肥鱼不是一个需要单独启动的桌宠应用。它由 DSH 插件�
 一起启动和退出，并以透明、无边框、始终置顶的原生窗口显示在桌面上。即使切换到
 VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修改、测试、等待还是已经完成。
 
-> 当前版本：`0.1.0-alpha.6`（二次开发版）· Windows 10/11 x64
+> 当前版本：`0.1.0-alpha.6`（跨平台版）· Windows 10/11 x64、macOS 14+ Apple Silicon (arm64)
 
 > 本仓库是作者基于 [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) 的
 > **二次开发版本**：把原独立桌宠改造成由 DSH 真实工作状态驱动的插件桌宠，并加入了
@@ -25,7 +25,7 @@ VS Code、浏览器或文件管理器，也能知道 DSH 当前在思考、修�
 
 ## 它有什么用？
 
-- **离开 DSH 页面也能看到状态**：大肥鱼始终显示在 Windows 桌面最上层。
+- **离开 DSH 页面也能看到状态**：大肥鱼始终显示在 Windows 或 macOS 桌面最上层。
 - **反馈来自真实 Agent 事件**：不会读取屏幕，也不会把你在其他软件里的操作误判为 DSH 工作。
 - **展示足够但不过量的信息**：项目名、当前阶段、正在进行的步骤和真实待办进度会显示在状态卡上。
 - **有生命力但不打扰**：思考、查找、修改、执行、验证、等待、完成和错误都有对应动作与自然文案。
@@ -84,12 +84,14 @@ stateDiagram-v2
 ## 系统要求
 
 - Windows 10/11 x64
+- macOS 14+（Apple Silicon / arm64）
 - 已安装并能正常运行的 DeepSeek Harness WebUI
 - DSH CLI 中可以使用 `plugin --profile web` 命令
 - 本仓库（`nolodjska/dsh-dafeiyu`）的源码包，或 GitHub Release 中的 `.tgz` 安装包
 
 普通用户**不需要**安装 Python、PySide6 或单独运行
-`dsh-dafeiyu-helper.exe`。Windows Helper 已经包含在发布包里。
+`dsh-dafeiyu-helper.exe`（Windows）或 `dsh-dafeiyu-helper`（macOS）。对应平台 Helper
+应包含在发布包里。
 
 当前 Alpha 版的设置与桌面状态文案使用简体中文。
 
@@ -119,6 +121,26 @@ pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-
 ```
 
 如果你的系统已经能直接使用全局 `dsh` 命令，把 `pnpm exec dsh` 换成 `dsh` 即可。
+
+### macOS Apple Silicon
+
+macOS 用户使用 bash 和 Apple Silicon Helper：
+
+```bash
+cd /path/to/dsh-dafeiyu
+python3 -m pip install -r requirements.txt pyinstaller
+npm run build:helper:mac
+npm pack
+cd /path/to/DSH
+pnpm exec dsh plugin --profile web add "/path/to/dsh-dafeiyu/dsh-dafeiyu-0.1.0-alpha.6.tgz"
+```
+
+构建产物为 `runtime/bin/darwin-arm64/dsh-dafeiyu-helper`。从 GitHub Release 安装时，
+请使用包含该 Darwin Helper 的 `.tgz`；首次运行若被 Gatekeeper 拦截，可对 Helper 执行：
+
+```bash
+xattr -dr com.apple.quarantine "$HOME/.dsh/profiles/web/node_modules/dsh-dafeiyu/runtime/bin/darwin-arm64/dsh-dafeiyu-helper"
+```
 
 ### 3. GitHub Release 备用安装方式
 
@@ -213,7 +235,7 @@ pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-
 ```
 
 使用 GitHub Release 安装的用户，下载新 `.tgz` 后覆盖安装即可。以上方式都会替换
-插件及随包携带的 Windows Helper，并保留 DSH 已保存的设置。详细说明见
+插件及随包携带的对应平台 Helper，并保留 DSH 已保存的设置。详细说明见
 [插件更新与回退](docs/UPDATING.md)。
 
 ## 回退到旧版本
@@ -245,7 +267,7 @@ pnpm exec dsh plugin --profile web remove dsh-dafeiyu
 1. 确认安装使用的是 `--profile web`。
 2. 完全退出并重新启动 DSH Host。
 3. 进入“设置 → 桌宠”确认“启用桌宠”拨纽已经打开。
-4. 确认使用 Windows x64 发布包，而不是只克隆了缺少预构建 Helper 的源码。
+4. 确认使用匹配平台的发布包：Windows x64 或 macOS arm64；源码包需要先构建对应 Helper。
 
 </details>
 
@@ -289,8 +311,8 @@ DSH 设置页左侧导航的 **设置 → 桌宠** 页面提供：
 - **启用桌宠拨纽**：一个拨纽（switch），不再使用复选框。
 - **动作循环照片墙**：每个动作循环一行缩略图，每帧下方标注文件名（与 Helper
   桌面调试日志 `debug-animation.log` 中的 `frame=` 一一对应），并带一个
-  **打开文件夹** 按钮，由插件自有 host 路由直接 `explorer.exe` 打开该循环
-  图片所在目录（系统文件资源管理器，不走 DSH 的 `workspaces.openPath`
+  **打开文件夹** 按钮，由插件自有 host 路由在 Windows 使用 `explorer.exe`、在 macOS
+  使用 `open` 打开该循环图片所在目录（系统文件管理器，不走 DSH 的 `workspaces.openPath`
   文件打开漏斗，因此不会被 dsh-better-sidebar 等插件劫持到侧边栏编辑器）。
 
 照片墙**不是硬编码**，而是由角色清单 `assets/pet-manifest.json` 中的
@@ -341,7 +363,7 @@ DSH 设置页左侧导航的 **设置 → 桌宠** 页面提供：
   `"scale": 1.08` 后绘制时会整体放大（底部锚定，不改变窗口尺寸）。照片墙
   缩略图不受影响，始终原样展示。
 - 「打开文件夹」请求插件的 `GET /plugins/dsh-dafeiyu/open-folder?folder=<id>`
-  路由，宿主把 `folder` 解析到 `assets/pet/` 下并直接 `explorer.exe` 打开；
+  路由，宿主把 `folder` 解析到 `assets/pet/` 下并按平台调用 `explorer.exe` 或 `open`；
   `folder` 必须是单个路径段或 `.`，宿主会校验目录存在且不越出资源根目录。
   该路由需要重启一次 DSH Host 后生效。
 
@@ -375,17 +397,24 @@ $env:DSH_DAFEIYU_BUILD_PYTHON = (Get-Command python).Source
 npm run build:helper:windows
 ```
 
+构建 macOS Apple Silicon Helper：
+
+```bash
+python3 -m pip install -r requirements.txt pyinstaller
+npm run build:helper:mac
+```
+
 ## 更多文档
 
 - [产品范围与取舍](docs/PRODUCT_SCOPE.md)
 - [执行计划](docs/EXECUTION_PLAN.md)
 - [兼容性验证](docs/PHASE0.md)
-- [Windows 验收与性能记录](docs/ACCEPTANCE.md)
+- [Windows 与 macOS 验收与性能记录](docs/ACCEPTANCE.md)
 - [更新、回退与卸载](docs/UPDATING.md)
 - [角色视觉资产许可](ASSET_LICENSE.md)
 
-上游项目：[QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet) 是作者基于的
-独立桌宠版本；本仓库是它的二次开发版本——只服务于 DSH 状态的插件桌宠。
+本仓库同时支持 Windows x64 和 macOS Apple Silicon；两平台共用 DSH 状态、协议和动画
+逻辑，桌面窗口、文件管理器和 Helper 构建按平台选择。
 
 ## License
 

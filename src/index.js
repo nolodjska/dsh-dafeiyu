@@ -117,13 +117,14 @@ export function createConfigHandler(settings) {
 }
 
 /**
- * Open one action-loop folder in the system file explorer.
+ * Open one action-loop folder in the system file manager.
  *
  * This deliberately does NOT use the client `workspaces.openPath` funnel: the
  * better-sidebar plugin replaces that method and reroutes opens into its own
  * sidebar editor, which cannot display directories. Instead the host resolves
  * the manifest-declared folder name against `assets/pet` and hands it straight
- * to `explorer.exe`, so the user always lands in the OS explorer.
+ * to the OS file manager (`explorer.exe` on Windows, `open` on macOS), so
+ * the user always lands in the OS file manager.
  */
 export function createOpenFolderHandler() {
   return async (req, res) => {
@@ -171,7 +172,8 @@ export function createOpenFolderHandler() {
     }
     try {
       await new Promise((resolveSpawn, rejectSpawn) => {
-        const child = spawn('explorer.exe', [target], { detached: true, stdio: 'ignore' })
+        const command = process.platform === 'darwin' ? 'open' : 'explorer.exe'
+        const child = spawn(command, [target], { detached: true, stdio: 'ignore' })
         child.once('error', rejectSpawn)
         child.once('spawn', resolveSpawn)
         child.unref()
@@ -339,7 +341,7 @@ function mount(ctx, config = {}, eventCtx = ctx) {
       )
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'exact', path: OPEN_FOLDER_ENDPOINT, handler: createOpenFolderHandler() }),
-        'dsh-dafeiyu: open pet folder in Explorer',
+        'dsh-dafeiyu: open pet folder in OS file manager',
       )
       httpCtx.effect(
         () => httpCtx.webServer.register({ kind: 'prefix', path: ASSET_PREFIX, handler: createAssetHandler() }),

@@ -20,7 +20,9 @@
     "runtime/layout_store.py",
     "runtime/__init__.py",
     "runtime/bin/win32-x64/dsh-dafeiyu-helper.exe",
+    "runtime/bin/darwin-arm64/dsh-dafeiyu-helper",
     "scripts/build-helper.ps1",
+    "scripts/build-helper.sh",
     "assets/pet/",
     "assets/pet-manifest.json",
     "docs/",
@@ -33,10 +35,12 @@
     "LICENSE"
   ],
   "os": [
-    "win32"
+    "win32",
+    "darwin"
   ],
   "cpu": [
-    "x64"
+    "x64",
+    "arm64"
   ],
   "engines": {
     "node": ">=22.19"
@@ -45,13 +49,15 @@
     "@deepseek-ai/schemastery": "^3.18.1"
   },
   "scripts": {
+    "prepack": "node -e \"const fs=require('node:fs');const target=process.platform==='win32'?'runtime/bin/win32-x64/dsh-dafeiyu-helper.exe':process.platform==='darwin'?'runtime/bin/darwin-arm64/dsh-dafeiyu-helper':null;if(target&&!((process.platform==='win32'&&process.arch==='x64')||(process.platform==='darwin'&&process.arch==='arm64'))){console.error('Unsupported Helper architecture: '+process.platform+'/'+process.arch);process.exit(1)}if(target&&!fs.existsSync(target)){console.error('Missing Helper binary: '+target);process.exit(1)}\"",
     "test": "node --test --test-timeout=10000 test/assets.test.js test/config-endpoint.test.js test/protocol.test.js test/status-copy.test.js test/reducer.test.js test/helper-lifecycle.test.js test/helper-restart.test.js test/plugin-integration.test.js",
     "test:helper": "node --test test/helper-lifecycle.test.js",
-    "test:python": "py -3 -m unittest discover -s runtime/tests -t .",
+    "test:python": "node scripts/run-python.mjs -m unittest discover -s runtime/tests -t .",
     "test:ui": "node test/fixtures/ui-acceptance.js",
-    "helper:headless": "py -3 runtime/helper.py --headless",
-    "helper:visual": "py -3 runtime/helper.py",
-    "build:helper:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-helper.ps1"
+    "helper:headless": "node scripts/run-python.mjs runtime/helper.py --headless",
+    "helper:visual": "node scripts/run-python.mjs runtime/helper.py",
+    "build:helper:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-helper.ps1",
+    "build:helper:mac": "bash scripts/build-helper.sh"
   },
   "dsh": {
     "client": {
