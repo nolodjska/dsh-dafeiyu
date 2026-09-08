@@ -164,3 +164,5 @@ jobs:
           name: ${{ github.ref_name }}
           files: dsh-dafeiyu-*.tgz
           generate_release_notes: true
+          # 带 - 的标签（如 -alpha.7 / -beta.1）作为预发布，纯版本号（如 v1.0.0）才是正式版
+          prerelease: ${{ contains(github.ref_name, '-') }}
