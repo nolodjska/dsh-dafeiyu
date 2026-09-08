@@ -2,7 +2,7 @@
 
 # DSH BigFish 🐋
 
-**A desktop companion that lives on Windows and reacts to real DeepSeek Harness activity.**
+**A desktop companion that lives on Windows or macOS and reacts to real DeepSeek Harness activity.**
 
 Enabled by DSH, owned by the DSH lifecycle, rendered on the desktop.
 
@@ -17,7 +17,7 @@ stops its native Helper, and provides the Agent events that drive it. The transp
 frameless companion stays above other Windows apps, so you can see whether DSH is thinking,
 editing, testing, waiting, or finished while working in VS Code, a browser, or File Explorer.
 
-> Current version: `0.1.0-alpha.6` (secondary development) · Windows 10/11 x64
+> Current version: `0.1.0-alpha.6` (cross-platform) · Windows 10/11 x64, macOS 14+ Apple Silicon (arm64)
 
 > This repository is the author's **secondary development** based on
 > [QCYTSN/ds-local-pet](https://github.com/QCYTSN/ds-local-pet): it turns the standalone
@@ -27,7 +27,7 @@ editing, testing, waiting, or finished while working in VS Code, a browser, or F
 
 ## What is it for?
 
-- **See DSH status away from the WebUI:** BigFish stays on top of the Windows desktop.
+- **See DSH status away from the WebUI:** BigFish stays on top of the Windows or macOS desktop.
 - **React to real Agent events:** it does not inspect the screen or mistake activity in other apps for DSH work.
 - **Show useful, compact context:** the card can display the project, current phase, active step, and real todo progress.
 - **Feel alive without becoming noisy:** thinking, searching, editing, commands, testing, waiting, success, and errors have distinct motion and friendly copy.
@@ -87,13 +87,15 @@ Working-state details:
 ## Requirements
 
 - Windows 10/11 x64
+- macOS 14+ (Apple Silicon / arm64)
 - A working DeepSeek Harness WebUI installation
 - A DSH CLI that supports `plugin --profile web`
 - The source archive of this repository (`nolodjska/dsh-dafeiyu`), or a `.tgz` from
   GitHub Releases
 
 Regular users do **not** need Python or PySide6 and should not launch
-`dsh-dafeiyu-helper.exe` manually. The Windows Helper is bundled in the release archive.
+`dsh-dafeiyu-helper.exe` on Windows or `dsh-dafeiyu-helper` on macOS manually. The matching
+platform Helper is bundled in the release archive.
 
 The current Alpha build uses Simplified Chinese for the settings UI and desktop status copy.
 
@@ -127,6 +129,26 @@ pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-
 ```
 
 If `dsh` is already available globally, replace `pnpm exec dsh` with `dsh`.
+
+### macOS Apple Silicon
+
+On macOS, build and package the Darwin arm64 Helper with bash:
+
+```bash
+cd /path/to/dsh-dafeiyu
+python3 -m pip install -r requirements.txt pyinstaller
+npm run build:helper:mac
+npm pack
+cd /path/to/DSH
+pnpm exec dsh plugin --profile web add "/path/to/dsh-dafeiyu/dsh-dafeiyu-0.1.0-alpha.6.tgz"
+```
+
+The Helper is written to `runtime/bin/darwin-arm64/dsh-dafeiyu-helper`. If Gatekeeper blocks a
+release download on first launch, clear its quarantine attribute and restart DSH:
+
+```bash
+xattr -dr com.apple.quarantine "$HOME/.dsh/profiles/web/node_modules/dsh-dafeiyu/runtime/bin/darwin-arm64/dsh-dafeiyu-helper"
+```
 
 ### 3. GitHub Release fallback
 
@@ -220,7 +242,7 @@ pnpm exec dsh plugin --profile web add "D:\path\to\dsh-dafeiyu-main\dsh-dafeiyu-
 ```
 
 Users who installed from GitHub Releases can download the new `.tgz` and install it over the
-old version. Either path replaces the plugin and bundled Windows Helper while retaining
+old version. Either path replaces the plugin and bundled platform Helper while retaining
 settings saved by DSH. See [Update and rollback](docs/UPDATING.md) for details.
 
 ## Roll back
@@ -252,7 +274,8 @@ an inactive copy of historical settings; it does not start a process or open a p
 1. Confirm that you installed into `--profile web`.
 2. Fully stop and restart the DSH Host.
 3. Open “Settings → Desktop Pet” and confirm that the “Enable desktop pet” toggle is on.
-4. Use the Windows x64 release archive. A source-only clone may not contain the prebuilt Helper.
+4. Use the matching Windows x64 or macOS arm64 release archive. A source-only clone may need a
+   platform Helper build first.
 
 </details>
 
@@ -312,12 +335,19 @@ $env:DSH_DAFEIYU_BUILD_PYTHON = (Get-Command python).Source
 npm run build:helper:windows
 ```
 
+Build the macOS Apple Silicon Helper:
+
+```bash
+python3 -m pip install -r requirements.txt pyinstaller
+npm run build:helper:mac
+```
+
 ## More documentation
 
 - [Product scope and trade-offs](docs/PRODUCT_SCOPE.md)
 - [Execution plan](docs/EXECUTION_PLAN.md)
 - [Compatibility spike](docs/PHASE0.md)
-- [Windows acceptance and performance](docs/ACCEPTANCE.md)
+- [Windows and macOS acceptance and performance](docs/ACCEPTANCE.md)
 - [Update, rollback, and uninstall](docs/UPDATING.md)
 - [Character asset license](ASSET_LICENSE.md)
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,8 @@ def default_layout_path() -> Path:
     dsh_home = os.environ.get("DSH_HOME")
     if dsh_home:
         return Path(dsh_home) / "dsh-dafeiyu" / "layout.json"
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "DSH" / "dsh-dafeiyu" / "layout.json"
     local_app_data = os.environ.get("LOCALAPPDATA")
     if local_app_data:
         return Path(local_app_data) / "DSH" / "dsh-dafeiyu" / "layout.json"
