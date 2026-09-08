@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-alpha.7
 
 - Add Darwin arm64 Helper selection, macOS window/layout behavior, Finder support, and a
   cross-platform macOS build script while retaining Windows x64 support.
